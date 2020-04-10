@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/bt_back"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        android:gravity="center"
+        android:background="@drawable/ic_arrow_back_black_24dp"/>
+
+    <TextView
+        android:id="@+id/tv_head"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:gravity="center"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="0.8"
+        android:text="未知名称"
+        android:textColor="#000000"
+        android:textSize="26sp"/>
+
+    <Button
+        android:id="@+id/bt_more"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_more_horiz_black_24dp" />
+
+</LinearLayout>
