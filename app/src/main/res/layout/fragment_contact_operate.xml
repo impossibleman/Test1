@@ -7,89 +7,28 @@
     android:orientation="vertical"
     tools:context=".fragment.ContactOperateFragment">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:text="title"
-        android:gravity="center"
-        android:layout_gravity="center_horizontal"
-        android:textColor="#000000"
-        android:textSize="25dp"
-        android:textStyle="bold"
-        android:layout_width="200dp"
-        android:layout_height="80dp" />
-
-    <HorizontalScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-    <LinearLayout
+    <TabHost
+        android:id="@+id/th_contact"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/bt_ReadContact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="本地联系人"
-            android:textSize="18dp"
-            android:textColor="@android:color/black"
-            android:background="@android:color/white"/>
-
-        <Button
-            android:id="@+id/bt_Upload"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="上传"
-            android:textSize="18dp"
-            android:textColor="@android:color/black"
-            android:background="@android:color/white"/>
-
-        <Button
-            android:id="@+id/bt_GetSeverContact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="从服务器获取"
-            android:textSize="18dp"
-            android:textColor="@android:color/black"
-            android:background="@android:color/white"/>
-
-        <Button
-            android:id="@+id/bt_StoreContact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="存储到本地"
-            android:textSize="18dp"
-            android:textColor="@android:color/black"
-            android:background="@android:color/white"/>
-
-    </LinearLayout>
-</HorizontalScrollView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tv_loading_state"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="nothing"
-            android:textSize="14dp"
-            android:gravity="center"/>
+            android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/lv_Contact"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"></ListView>
-    </LinearLayout>
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </FrameLayout>
+        </LinearLayout>
+
+    </TabHost>
 
 </LinearLayout>

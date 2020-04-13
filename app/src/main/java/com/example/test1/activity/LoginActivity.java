@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,6 +21,7 @@ import com.example.test1.commontool.NetWorkTool;
 import com.example.test1.dataconstruct.PeanutObject;
 import com.example.test1.dataconstruct.PersonalInfo;
 import com.example.test1.fragment.ChatOperationFragment;
+import com.jaeger.library.StatusBarUtil;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,11 +35,10 @@ public class LoginActivity extends AppCompatActivity {
 
     PrintWriter writer;
     BufferedReader reader;
+    Toolbar tbLogin;
     EditText etUserName;
     EditText etPassword;
-    TextView tvHead;
     TextView tvLoading;
-    Button btBack;
     Button btConfirm;
     Button btCancel;
     String accountId;
@@ -49,14 +52,16 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         etUserName=findViewById(R.id.et_user_name);
         etPassword=findViewById(R.id.et_password);
+        tbLogin=findViewById(R.id.tb_login);
         btConfirm=findViewById(R.id.bt_confirm);
         btCancel=findViewById(R.id.bt_cancel);
-        tvHead=findViewById(R.id.tv_head);
         tvLoading=findViewById(R.id.tv_loading);
-        btBack=findViewById(R.id.bt_back);
         btConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!NetWorkTool.CheckNetConnect(LoginActivity.this)){
+                    return;
+                }
                 accountId = etUserName.getText().toString();
                 password = etPassword.getText().toString();
                 if(accountId.isEmpty()||password.isEmpty()){
@@ -76,20 +81,20 @@ public class LoginActivity extends AppCompatActivity {
                 SetLoginState(false);
             }
         });
-        tvHead.setText("登录");
         tvLoading.setVisibility(View.INVISIBLE);
+        tbLogin.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         btCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
             }
         });
-        btBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        StatusBarUtil.setColor(this, getResources().getColor(R.color.grayblue));
 
         personalInfo=new PersonalInfo();
     }
@@ -191,4 +196,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(getCurrentFocus()!=null){
+            InputMethodManager manager=(InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+            return manager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+        }
+        return super.onTouchEvent(event);
+    }
 }

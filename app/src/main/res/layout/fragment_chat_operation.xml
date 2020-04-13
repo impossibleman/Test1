@@ -13,13 +13,14 @@
 
         <Button
             android:id="@+id/bt_login"
-            android:layout_width="120dp"
-            android:layout_height="60dp"
+            android:layout_width="140dp"
+            android:layout_height="50dp"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:text="登录"
-            android:textColor="#000000"
-            android:textSize="16sp"/>
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:background="@drawable/wb_button_lightenblue"/>
 
     <ExpandableListView
         android:id="@+id/lv_Chat_Contact"

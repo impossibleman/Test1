@@ -1,5 +1,10 @@
 package com.example.test1.commontool;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.widget.Toast;
+
 import com.example.test1.dataconstruct.PeanutObject;
 
 import java.net.Socket;
@@ -58,5 +63,15 @@ public class NetWorkTool {
             }
         }
         return peanutObjects;
+    }
+
+    public static boolean CheckNetConnect(Context context){
+        ConnectivityManager connectivityManager =(ConnectivityManager)context.getSystemService(context.CONNECTIVITY_SERVICE);
+        NetworkInfo info =connectivityManager.getActiveNetworkInfo();
+        if(info!=null){
+            return true;
+        }
+        Toast.makeText(context,"Net connect failed!",Toast.LENGTH_LONG);
+        return false;
     }
 }

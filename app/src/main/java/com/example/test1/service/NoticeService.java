@@ -58,11 +58,11 @@ public class NoticeService extends Service {
         @Override
         public void run() {
             try{
-                socket=new Socket("192.168.3.46",8888);
+                socket=new Socket("192.168.3.46",8886);
                 NetWorkTool.CreateSocket(socket);
                 writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")), true);
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));
-                String recieveMessage=reader.readLine();
+                String recieveMessage;
                 while((recieveMessage=reader.readLine())!=null){
                     Log.d("TAG", "recieveMessage: "+recieveMessage);
 //                    onSocketReadListener.OnSocketReadSuccess(recieveMessage);

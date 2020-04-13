@@ -7,8 +7,11 @@ import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -22,6 +25,7 @@ import com.example.test1.commontool.NetWorkTool;
 import com.example.test1.dataconstruct.ChatContact;
 import com.example.test1.dataconstruct.ChatContent;
 import com.example.test1.dataconstruct.PeanutObject;
+import com.jaeger.library.StatusBarUtil;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,10 +44,9 @@ public class ConversationActivity extends AppCompatActivity {
     Socket socket;
     PrintWriter writer;
     BufferedReader reader;
+    Toolbar tbConversation;
     EditText etInputMessage;
     ImageButton ibSend;
-    TextView tvHead;
-    Button btBack;
     ListView lvMessages;
     ChatContentAdapter adapter;
     int userId;
@@ -65,21 +68,16 @@ public class ConversationActivity extends AppCompatActivity {
         resourceType=bundle.getInt("resourcetype");
         socket= NetWorkTool.GetSocket();
 
+        tbConversation=findViewById(R.id.tb_login);
         etInputMessage=findViewById(R.id.et_input_message);
         ibSend=findViewById(R.id.ib_send);
-        tvHead=findViewById(R.id.tv_head);
-        btBack=findViewById(R.id.bt_back);
         lvMessages=findViewById(R.id.lv_messages);
-        tvHead.setText("与"+targetUserName+"对话中...");
-        btBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
         ibSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!NetWorkTool.CheckNetConnect(ConversationActivity.this)){
+                    return;
+                }
                 inputMessage=etInputMessage.getText().toString();
                 ChatContent createdContent=new ChatContent();
                 createdContent.setContent(inputMessage);
@@ -95,7 +93,7 @@ public class ConversationActivity extends AppCompatActivity {
                 executorService.execute(new SendMessage());
             }
         });
-        btBack.setOnClickListener(new View.OnClickListener() {
+        tbConversation.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(resourceType==ConstantAssemble.ACTIVITY_START_RESOURCE_CONTACT_LIST){
@@ -108,6 +106,7 @@ public class ConversationActivity extends AppCompatActivity {
                 }
             }
         });
+        StatusBarUtil.setColor(this, getResources().getColor(R.color.grayblue));
 
         messages=new ArrayList<>();
         executorService= Executors.newCachedThreadPool();
@@ -185,5 +184,14 @@ public class ConversationActivity extends AppCompatActivity {
         }
         else{
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(getCurrentFocus()!=null){
+            InputMethodManager manager=(InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+            return manager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+        }
+        return super.onTouchEvent(event);
     }
 }

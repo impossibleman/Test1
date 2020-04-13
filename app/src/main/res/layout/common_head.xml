@@ -10,7 +10,7 @@
         android:layout_height="35dp"
         android:padding="5dp"
         android:gravity="center"
-        android:background="@drawable/ic_arrow_back_black_24dp"/>
+        android:background="@drawable/ic_arrow_back_white_24dp"/>
 
     <TextView
         android:id="@+id/tv_head"
@@ -28,6 +28,6 @@
         android:id="@+id/bt_more"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_more_horiz_black_24dp" />
+        android:background="@drawable/ic_more_horiz_white_24dp" />
 
 </LinearLayout>

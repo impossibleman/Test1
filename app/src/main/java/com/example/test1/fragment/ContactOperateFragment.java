@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.BitmapRegionDecoder;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
@@ -18,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.test1.commontool.NetWorkTool;
@@ -35,13 +38,11 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ContactOperateFragment extends Fragment implements View.OnClickListener {
+public class ContactOperateFragment extends Fragment {
 
+    TabHost tbContact;
     ListView lvContact;
-    Button btReadContact;
-    Button btUpload;
-    Button btGetServerContact;
-    Button btStoreContact;
+    TextView tvNoContent;
     Activity activity;
     ExecutorService executorService;
     Socket socket;
@@ -49,21 +50,24 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
     BufferedReader reader;
     ArrayList<CellContact> serverContact;
     ArrayList<CellContact> phoneContact;
-    boolean isFirstConnect=false,isVisible=false,isInitFinished=false,isFirstLoad=true;
+    boolean isFirstConnect = false, isVisible = false, isInitFinished = false, isFirstLoad = true;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        activity=(Activity) context;
+        activity = (Activity) context;
     }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser){
-            isVisible=true;
-            if(isVisible&&isInitFinished&&isFirstLoad){
-//                executorService.execute(new ConnectService());
+        if (isVisibleToUser) {
+            isVisible = true;
+            if (isVisible && isInitFinished && isFirstLoad) {
+                isFirstLoad = false;
+                if (NetWorkTool.CheckNetConnect(activity)) {
+//                    executorService.execute(new ConnectService());
+                }
             }
         }
     }
@@ -71,27 +75,47 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_contact_operate,container,false);
-        lvContact = view.findViewById(R.id.lv_Contact);
-        btReadContact = view.findViewById(R.id.bt_ReadContact);
-        btUpload = view.findViewById(R.id.bt_Upload);
-        btGetServerContact = view.findViewById(R.id.bt_GetSeverContact);
-        btStoreContact = view.findViewById(R.id.bt_StoreContact);
-        btReadContact.setOnClickListener(this);
-        btUpload.setOnClickListener(this);
-        btGetServerContact.setOnClickListener(this);
-        btStoreContact.setOnClickListener(this);
+        View view = inflater.inflate(R.layout.fragment_contact_operate, container, false);
+        tbContact = view.findViewById(R.id.th_contact);
+        tbContact.setup();
+        View inflateView=LayoutInflater.from(activity).inflate(R.layout.layout_contact_list,tbContact.getTabContentView());
+        lvContact = inflateView.findViewById(R.id.lv_Contact);
+        tvNoContent = inflateView.findViewById(R.id.tv_no_content);
+        tbContact.addTab(tbContact.newTabSpec("local").setIndicator("本地").setContent(R.id.cl_contact_list));
+        tbContact.addTab(tbContact.newTabSpec("download").setIndicator("加载").setContent(R.id.cl_contact_list));
+        tbContact.addTab(tbContact.newTabSpec("upload").setIndicator("上传").setContent(R.id.cl_contact_list));
+        tbContact.addTab(tbContact.newTabSpec("store").setIndicator("储存").setContent(R.id.cl_contact_list));
+        tbContact.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                Log.d("TAG",tabId);
+                if (tabId.equals("local")) {
+                    GetLocalContact();
+                } else if (tabId.equals("download")) {
+                    GetSeverContact();
+                } else if (tabId.equals("upload")) {
+                    SendToServer();
+                } else if (tabId.equals("store")) {
+                    StoreContact();
+                } else {
+
+                }
+            }
+        });
+        tbContact.setCurrentTab(0);
 
         serverContact = new ArrayList<>();
         phoneContact = new ArrayList<CellContact>();
 
         executorService = Executors.newCachedThreadPool();
-        isInitFinished=true;
-        if(isVisible&&isInitFinished&&isFirstLoad){
-//            executorService.execute(new ConnectService());
+        isInitFinished = true;
+        if (isVisible && isInitFinished && isFirstLoad) {
+            isFirstLoad = false;
+            if (NetWorkTool.CheckNetConnect(activity)) {
+//                executorService.execute(new ConnectService());
+            }
         }
-        Log.d("TAG","Init finished!");
-        isFirstLoad=false;
+        Log.d("TAG", "Init finished!");
         return view;
     }
 
@@ -99,22 +123,24 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
         @Override
         public void run() {
             try {
-                socket= NetWorkTool.GetSocket();
-                if(socket==null){
-                    isFirstConnect=true;
+                socket = NetWorkTool.GetSocket();
+                if (socket == null) {
+                    isFirstConnect = true;
                     socket = new Socket("192.168.3.46", 8888);
+                    socket.setSoTimeout(5000);
                 }
                 writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")), true);
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));
-                String recieveMessage="";
-                if(isFirstConnect){
-                    recieveMessage=reader.readLine();
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                String recieveMessage = "";
+                if (isFirstConnect) {
+                    recieveMessage = reader.readLine();
                     Log.d("TAG", recieveMessage);
-                    isFirstConnect=false;
+                    isFirstConnect = false;
                 }
             } catch (Exception e) {
                 Log.e("TAG", "Socket connect failed!");
                 e.printStackTrace();
+                Toast.makeText(activity, "server connect failed", Toast.LENGTH_LONG);
             }
         }
     }
@@ -126,29 +152,13 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
                 case 1:
                     ContactListAdapter adapter = new ContactListAdapter(activity, R.layout.contact_item, serverContact);
                     lvContact.setAdapter(adapter);
+                    lvContact.setVisibility(View.VISIBLE);
+                    tvNoContent.setVisibility(View.INVISIBLE);
                     break;
             }
             ;
         }
     };
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.bt_ReadContact:
-                GetLocalContact();
-                break;
-            case R.id.bt_GetSeverContact:
-                GetSeverContact();
-                break;
-            case R.id.bt_Upload:
-                SendToServer();
-                break;
-            case R.id.bt_StoreContact:
-                StoreContact();
-                break;
-        }
-    }
 
     private void GetLocalContact() {
         phoneContact.clear();
@@ -172,7 +182,9 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
     }
 
     private void GetSeverContact() {
-        executorService.execute(new RecieveService());
+        if (NetWorkTool.CheckNetConnect(activity)) {
+            executorService.execute(new RecieveService());
+        }
     }
 
     class RecieveService implements Runnable {
@@ -187,7 +199,7 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
                     String recieveMessage = "";
                     Log.d("TAG", "Waiting for server message!");
                     while (!recieveMessage.equals("end")) {
-                        if (socket == null || !socket.isConnected()){
+                        if (socket == null || !socket.isConnected()) {
 //                            ConnectToServer();
                         }
                         recieveMessage = reader.readLine();
@@ -224,12 +236,12 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
         serverMessage = serverMessage.substring(serverMessage.indexOf(":") + 1);
         while (!serverMessage.equals("")) {
             Log.d("TAG", "Analysis loop!");
-            int titlePosition=serverMessage.indexOf(":");
+            int titlePosition = serverMessage.indexOf(":");
             String title = serverMessage.substring(0, titlePosition);
             serverMessage = serverMessage.substring(titlePosition + 1);
-            int lengthPosition=serverMessage.indexOf(":");
+            int lengthPosition = serverMessage.indexOf(":");
             int contentLength = Integer.parseInt(serverMessage.substring(0, lengthPosition));
-            String content = serverMessage.substring(lengthPosition+1, lengthPosition+1+contentLength);
+            String content = serverMessage.substring(lengthPosition + 1, lengthPosition + 1 + contentLength);
             Log.d("TAG", content);
             if (title.equals("name")) {
                 singleContact.setName(content);
@@ -238,11 +250,11 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
             } else {
                 Log.e("TAG", "Unknow field!");
             }
-            if(contentLength+1>serverMessage.length()){
+            if (contentLength + 1 > serverMessage.length()) {
                 break;
             }
-            serverMessage = serverMessage.substring(lengthPosition+1+contentLength+1);
-            Log.d("TAG", "Remaining message:  "+serverMessage);
+            serverMessage = serverMessage.substring(lengthPosition + 1 + contentLength + 1);
+            Log.d("TAG", "Remaining message:  " + serverMessage);
         }
         Log.d("TAG", "Analysis over!");
         serverContact.add(singleContact);
@@ -250,7 +262,9 @@ public class ContactOperateFragment extends Fragment implements View.OnClickList
 
     //Send info to server
     private void SendToServer() {
-        executorService.execute(new SendService());
+        if (NetWorkTool.CheckNetConnect(activity)) {
+            executorService.execute(new SendService());
+        }
     }
 
     class SendService implements Runnable {

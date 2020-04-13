@@ -150,7 +150,7 @@ public class ChatOperationFragment extends Fragment {
 
     Handler mHandler=new Handler(){
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(@org.jetbrains.annotations.NotNull Message msg) {
             switch (msg.what){
                 case 0:
                     ChatContactAdapter mAdapter=new ChatContactAdapter(activity,contactClassifies);
@@ -163,7 +163,9 @@ public class ChatOperationFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                     break;
                 case 2:
-                    executorService.execute(new GetContact());
+                    if(NetWorkTool.CheckNetConnect(activity)){
+                        executorService.execute(new GetContact());
+                    }
                     break;
                 case 3:
                     ProcessConnectionFailure();

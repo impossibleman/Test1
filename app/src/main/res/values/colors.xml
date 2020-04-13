@@ -6,6 +6,10 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="lightenGray">#DCDCDC</color>
+    <color name="Grey">#BEBEBE</color>
     <color name="deepGray">#474747</color>
     <color name="grayblue">#3A5FCD</color>
+    <color name="lightenblue">#00BFFF</color>
+    <color name="orangered">#FF4500</color>
+    <color name="red">#FF0000</color>
 </resources>

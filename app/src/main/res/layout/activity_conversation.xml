@@ -11,19 +11,25 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-    <include layout="@layout/common_head"/>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/tb_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/grayblue"
+            app:navigationIcon="@drawable/ic_arrow_back_white_24dp"
+            app:title="login"></android.support.v7.widget.Toolbar>
 
-    <ListView
-        android:id="@+id/lv_messages"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+        <ListView
+            android:id="@+id/lv_messages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></ListView>
 
     </LinearLayout>
 
     <include
+        layout="@layout/input_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        layout="@layout/input_area"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
