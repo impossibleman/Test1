@@ -43,6 +43,7 @@ public class ContactOperateFragment extends Fragment {
     TabHost tbContact;
     ListView lvContact;
     TextView tvNoContent;
+    Button btLocalContact;
     Activity activity;
     ExecutorService executorService;
     Socket socket;
@@ -50,7 +51,8 @@ public class ContactOperateFragment extends Fragment {
     BufferedReader reader;
     ArrayList<CellContact> serverContact;
     ArrayList<CellContact> phoneContact;
-    boolean isFirstConnect = false, isVisible = false, isInitFinished = false, isFirstLoad = true;
+    int currenIndex;
+    boolean isFirstConnect = false, isVisible = false, isInitFinished = false, isFirstLoad = true,isFirstRequest=true;
 
     @Override
     public void onAttach(Context context) {
@@ -63,7 +65,9 @@ public class ContactOperateFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             isVisible = true;
+//            InitViewState();
             if (isVisible && isInitFinished && isFirstLoad) {
+                Log.d("TAG", "Begin to be seen!");
                 isFirstLoad = false;
                 if (NetWorkTool.CheckNetConnect(activity)) {
 //                    executorService.execute(new ConnectService());
@@ -78,31 +82,14 @@ public class ContactOperateFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_contact_operate, container, false);
         tbContact = view.findViewById(R.id.th_contact);
         tbContact.setup();
-        View inflateView=LayoutInflater.from(activity).inflate(R.layout.layout_contact_list,tbContact.getTabContentView());
+        View inflateView=inflater.inflate(R.layout.layout_contact_list,tbContact.getTabContentView());
         lvContact = inflateView.findViewById(R.id.lv_Contact);
         tvNoContent = inflateView.findViewById(R.id.tv_no_content);
+        btLocalContact = inflateView.findViewById(R.id.bt_get_local);
         tbContact.addTab(tbContact.newTabSpec("local").setIndicator("本地").setContent(R.id.cl_contact_list));
         tbContact.addTab(tbContact.newTabSpec("download").setIndicator("加载").setContent(R.id.cl_contact_list));
         tbContact.addTab(tbContact.newTabSpec("upload").setIndicator("上传").setContent(R.id.cl_contact_list));
         tbContact.addTab(tbContact.newTabSpec("store").setIndicator("储存").setContent(R.id.cl_contact_list));
-        tbContact.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
-            @Override
-            public void onTabChanged(String tabId) {
-                Log.d("TAG",tabId);
-                if (tabId.equals("local")) {
-                    GetLocalContact();
-                } else if (tabId.equals("download")) {
-                    GetSeverContact();
-                } else if (tabId.equals("upload")) {
-                    SendToServer();
-                } else if (tabId.equals("store")) {
-                    StoreContact();
-                } else {
-
-                }
-            }
-        });
-        tbContact.setCurrentTab(0);
 
         serverContact = new ArrayList<>();
         phoneContact = new ArrayList<CellContact>();
@@ -115,8 +102,62 @@ public class ContactOperateFragment extends Fragment {
 //                executorService.execute(new ConnectService());
             }
         }
+        tbContact.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                Log.d("TAG",tabId);
+                if (tabId.equals("local")) {
+                    currenIndex=0;
+                } else if (tabId.equals("download")) {
+                    currenIndex=1;
+                    if(!isFirstRequest){
+                        GetSeverContact();
+                    }
+                } else if (tabId.equals("upload")) {
+                    currenIndex=2;
+                    SendToServer();
+                } else if (tabId.equals("store")) {
+                    currenIndex=3;
+                    StoreContact();
+                } else {
+
+                }
+                SetContentVisibility(false);
+            }
+        });
+        btLocalContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GetLocalContact();
+            }
+        });
+        InitViewState();
         Log.d("TAG", "Init finished!");
         return view;
+    }
+
+    void InitViewState(){
+        tbContact.setCurrentTab(1);
+        isFirstRequest=false;
+        tbContact.setCurrentTab(0);
+        SetContentVisibility(false);
+    }
+
+    void SetContentVisibility(boolean hasContent){
+        lvContact.setVisibility(hasContent?View.VISIBLE:View.INVISIBLE);
+        if(hasContent){
+            btLocalContact.setVisibility(View.INVISIBLE);
+            tvNoContent.setVisibility(View.INVISIBLE);
+            return;
+        }
+        if(currenIndex==0){
+            btLocalContact.setVisibility(View.VISIBLE);
+            tvNoContent.setVisibility(View.INVISIBLE);
+        }
+        else{
+            btLocalContact.setVisibility(View.INVISIBLE);
+            tvNoContent.setVisibility(View.VISIBLE);
+        }
     }
 
     private class ConnectService implements Runnable {
@@ -149,18 +190,24 @@ public class ContactOperateFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case 1:
-                    ContactListAdapter adapter = new ContactListAdapter(activity, R.layout.contact_item, serverContact);
-                    lvContact.setAdapter(adapter);
-                    lvContact.setVisibility(View.VISIBLE);
-                    tvNoContent.setVisibility(View.INVISIBLE);
+                case 0:
+                    ContactListAdapter localAdapter = new ContactListAdapter(activity, R.layout.contact_item, phoneContact);
+                    lvContact.setAdapter(localAdapter);
+                    SetContentVisibility(true);
                     break;
+                case 1:
+                    ContactListAdapter serverAdapter = new ContactListAdapter(activity, R.layout.contact_item, serverContact);
+                    lvContact.setAdapter(serverAdapter);
+                    SetContentVisibility(true);
+                    break;
+
             }
             ;
         }
     };
 
     private void GetLocalContact() {
+        Log.d("TAG", "Get local contact!");
         phoneContact.clear();
         Cursor cursor = activity.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
         while (cursor.moveToNext()) {
@@ -177,8 +224,10 @@ public class ContactOperateFragment extends Fragment {
             }
             phoneContact.add(singleContact);
         }
-        ContactListAdapter adapter = new ContactListAdapter(activity, R.layout.contact_item, phoneContact);
-        lvContact.setAdapter(adapter);
+        if(phoneContact.isEmpty()){
+            return;
+        }
+        mHandler.sendEmptyMessage(0);
     }
 
     private void GetSeverContact() {

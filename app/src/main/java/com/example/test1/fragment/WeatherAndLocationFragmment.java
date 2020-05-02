@@ -2,6 +2,9 @@ package com.example.test1.fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.test1.R;
+import com.example.test1.commontool.ConstantAssemble;
+import com.example.test1.customview.WeatherEffectView;
 import com.example.test1.dataconstruct.TomorrowWeatherInfo;
 import com.example.test1.dataconstruct.UserLocation;
 import com.example.test1.dataconstruct.WeatherInfo;
@@ -37,6 +42,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,7 +52,10 @@ public class WeatherAndLocationFragmment extends Fragment {
     TextView tvTemperature;
     TextView tvWeather;
     ImageView ivWeather;
+    WeatherEffectView weatherEffectView;
     Button btMap;
+    Paint paint;
+    Canvas canvas;
     ExecutorService executorService;
     UserLocation userLocation;
     WeatherInfo weatherInfo;
@@ -59,7 +68,7 @@ public class WeatherAndLocationFragmment extends Fragment {
         if(isVisibleToUser){
             isVisible=true;
             if(isVisible&&isInitFinished&&isFirstLoad){
-                GetUserLocation();
+//                GetUserLocation();
                 isFirstLoad=false;
             }
         }
@@ -72,13 +81,15 @@ public class WeatherAndLocationFragmment extends Fragment {
         tvCity=view.findViewById(R.id.tv_city);
         tvTemperature=view.findViewById(R.id.tv_temperature);
         tvWeather=view.findViewById(R.id.tv_weather);
-        ivWeather=view.findViewById(R.id.iv_weather);
+        weatherEffectView=view.findViewById(R.id.ef_weather);
         btMap=view.findViewById(R.id.bt_map);
         executorService= Executors.newCachedThreadPool();
+        weatherEffectView.Init();
+        weatherEffectView.SetWeather(WeatherEffectView.WEATHER_TYPE_RAIN);
 
         isInitFinished=true;
         if(isVisible&&isInitFinished&&isFirstLoad){
-            GetUserLocation();
+//            GetUserLocation();
             isFirstLoad=false;
         }
         return view;
@@ -90,7 +101,8 @@ public class WeatherAndLocationFragmment extends Fragment {
             switch (msg.what){
                 case 0:
                     userLocation=(UserLocation)msg.obj;
-                    executorService.execute(new ProcessNetRequest(userLocation.getCity()));
+                    executorService.execute(new ProcessNetRequest(""));
+//                    executorService.execute(new ProcessNetRequest(userLocation.getCity()));
                     break;
                 case 1:
                     LoadTemperature();
@@ -117,6 +129,14 @@ public class WeatherAndLocationFragmment extends Fragment {
         tvTemperature.setText(weatherInfo.getTemp());
         tvWeather.setText(weatherInfo.getWeather());
         GetNetImage("https:"+weatherInfo.getWeatherimg());
+        paint=new Paint();
+        paint.setAlpha(180);
+        paint.setColor(getResources().getColor(R.color.grayblue));
+        paint.setStrokeWidth(1.0f);
+        canvas=new Canvas();
+        for(int i=15;i!=0;i--){
+            canvas.drawLines(ConstantAssemble.linePTS,0,1,paint);
+        }
     }
 
     public void GetUserLocation(){
@@ -138,7 +158,8 @@ public class WeatherAndLocationFragmment extends Fragment {
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
             if(bdLocation.getCity()==null){
-                mHandler.sendEmptyMessage(3);
+                mHandler.sendEmptyMessage(0);
+//                mHandler.sendEmptyMessage(3);
                 return;
             }
             String locationType;
@@ -178,10 +199,13 @@ public class WeatherAndLocationFragmment extends Fragment {
         @Override
         public void run() {
             if(cityName==null||cityName.isEmpty()){
-                return;
+                cityName="苏州";
+//                return;
             }
-            String requestUrl="https://api.help.bj.cn/apis/weather2d?id="+cityName;
+            String requestUrl="";
             try{
+                cityName=URLEncoder.encode(cityName,"UTF-8");
+                requestUrl= "https://api.help.bj.cn/apis/weather2d?id="+cityName;
                 URL url=new URL(requestUrl);
                 HttpURLConnection connection=(HttpURLConnection)url.openConnection();
                 connection.setRequestMethod("GET");
@@ -197,7 +221,8 @@ public class WeatherAndLocationFragmment extends Fragment {
                 ParseJsonResult(result);
             }
             catch (Exception e){
-                Log.d("TAG","Net request error: "+requestUrl);
+                Log.d("TAG","Net request error: "+requestUrl+" trace log:---  ");
+                e.printStackTrace();
             }
         }
     }
@@ -245,7 +270,7 @@ public class WeatherAndLocationFragmment extends Fragment {
             tomorrowWeatherInfo.setWeather(tomorrowweatherObj.getString("weather"));
             tomorrowWeatherInfo.setWind(tomorrowweatherObj.getString("wind"));
             tomorrowWeatherInfo.setWeatherimg(tomorrowweatherObj.getString("weatherimg"));
-            mHandler.sendEmptyMessage(0);
+            mHandler.sendEmptyMessage(1);
         }
         catch (Exception e){
             Log.d("TAG","Parse result error: "+e.getMessage());

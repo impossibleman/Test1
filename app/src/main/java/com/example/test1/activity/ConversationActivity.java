@@ -12,11 +12,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.test1.R;
 import com.example.test1.adapter.ChatContentAdapter;
@@ -76,9 +78,14 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(!NetWorkTool.CheckNetConnect(ConversationActivity.this)){
+                    Toast.makeText(ConversationActivity.this, "网络未连接!", Toast.LENGTH_LONG).show();
                     return;
                 }
                 inputMessage=etInputMessage.getText().toString();
+                if(inputMessage==null||inputMessage.isEmpty()){
+                    Toast.makeText(ConversationActivity.this, "请输入内容!", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 ChatContent createdContent=new ChatContent();
                 createdContent.setContent(inputMessage);
                 createdContent.setUserId(userId);
@@ -106,6 +113,14 @@ public class ConversationActivity extends AppCompatActivity {
                 }
             }
         });
+        lvMessages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                InputMethodManager manager=(InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                manager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+            }
+        });
+        tbConversation.setTitle("与"+targetUserName+"的对话中...");
         StatusBarUtil.setColor(this, getResources().getColor(R.color.grayblue));
 
         messages=new ArrayList<>();

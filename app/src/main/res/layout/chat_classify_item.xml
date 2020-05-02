@@ -2,18 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/lightenGray"
+    android:background="@drawable/bg_chat_contact_classify"
     android:padding="5dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
 
     <TextView
         android:id="@+id/tv_classifyname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:gravity="left"
         android:padding="5dp"
         android:text="分类名称"
-        android:textSize="17sp"
+        android:textSize="14sp"
         android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/tv_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:padding="5dp"
+        android:text="1/1"
+        android:textSize="14sp"
+        android:textColor="#000000"/>
+
+    <ImageView
+        android:id="@+id/iv_expand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_keyboard_arrow_up_24dp"/>
 
 </LinearLayout>

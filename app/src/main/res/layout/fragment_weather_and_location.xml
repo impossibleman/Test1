@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/deepGray"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
     android:orientation="vertical">
+
+    <com.example.test1.customview.WeatherEffectView
+        android:id="@+id/ef_weather"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/ll_temperature_and_weather"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_gravity="center"/>
 
     <TextView
         android:id="@+id/tv_city"
@@ -11,13 +22,20 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:text="城市名称"
         android:textColor="#436EEE"
         android:textSize="55sp"/>
 
     <LinearLayout
+        android:id="@+id/ll_temperature_and_weather"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/tv_city"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:orientation="horizontal"
         android:layout_marginTop="30dp">
 
@@ -46,23 +64,19 @@
             android:textSize="35sp"/>
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/iv_weather"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
-
     <Button
         android:id="@+id/bt_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
-        android:background="@drawable/button_background_white"
+        android:layout_marginTop="60dp"
+        app:layout_constraintTop_toBottomOf="@+id/ll_temperature_and_weather"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/wb_button_lightenblue"
         android:gravity="center"
         android:padding="15dp"
         android:layout_gravity="center"
         android:text="去地图逛逛"
-        android:textColor="@color/black"
-        android:textSize="25sp"/>
+        style="@style/common_text_style_black"/>
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

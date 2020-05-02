@@ -22,11 +22,11 @@
             android:textSize="16sp"
             android:background="@drawable/wb_button_lightenblue"/>
 
-    <ExpandableListView
+    <com.example.test1.customview.HoverExpandableListView
         android:id="@+id/lv_Chat_Contact"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:groupIndicator="@null"></ExpandableListView>
+        android:groupIndicator="@null"></com.example.test1.customview.HoverExpandableListView>
 
     </RelativeLayout>
 

@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".activity.ConversationActivity">
 
     <LinearLayout
@@ -17,12 +19,12 @@
             android:layout_height="wrap_content"
             android:background="@color/grayblue"
             app:navigationIcon="@drawable/ic_arrow_back_white_24dp"
-            app:title="login"></android.support.v7.widget.Toolbar>
+            app:title=""></android.support.v7.widget.Toolbar>
 
         <ListView
             android:id="@+id/lv_messages"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></ListView>
+            android:layout_height="wrap_content"></ListView>
 
     </LinearLayout>
 
